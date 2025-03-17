@@ -155,7 +155,7 @@ MonoBehaviour:
   buttonPrefab: {fileID: 5786294553110460023, guid: d908bf94d46a69042bd48c54591d160a, type: 3}
   buttonsParent: {fileID: 1576418325}
   playPauseButton: {fileID: 2074409739}
-  ballPrefab: {fileID: 0}
+  ballPrefab: {fileID: 1676279643909714346, guid: 59293664eede64b418f66ce34b9de58f, type: 3}
   workoutDescriptionText: {fileID: 226010660}
 --- !u!4 &200261635
 Transform:

@@ -8,7 +8,7 @@ using System.Collections;
 [System.Serializable]
 public class WorkoutDetails
 {
-    public int ballCount;
+    public int numberOfWorkoutBalls;
     public string ballDirection;
 }
 
@@ -63,34 +63,51 @@ public class JSONLoader : MonoBehaviour
         }
         else
         {
-            // Start spawning balls based on the selected workout
-            spawnCoroutine = StartCoroutine(SpawnBalls(selectedWorkoutDetails));
-            playPauseButton.GetComponentInChildren<TextMeshProUGUI>().text = "Pause";
+            if (selectedWorkoutDetails != null)
+            {
+                spawnCoroutine = StartCoroutine(SpawnBalls(selectedWorkoutDetails));
+                playPauseButton.GetComponentInChildren<TextMeshProUGUI>().text = "Pause";
+            }
+            else
+            {
+                Debug.LogError("No workout selected!"); // Prevents null errors
+            }
         }
+
 
         isPlaying = !isPlaying;
     }
 
     IEnumerator SpawnBalls(WorkoutDetails details)
     {
-        for (int i = 0; i < details.ballCount; i++)
+        Debug.Log("Starting ball spawn , Ball count: " + details.numberOfWorkoutBalls);
+        for (int i = 0; i < details.numberOfWorkoutBalls; i++)
         {
             // Spawn a single ball with a 2-second delay between each one
-            SpawnBall(details.ballDirection);
-            yield return new WaitForSeconds(2f);
+            SpawnBall(details.ballDirection); //dealing with the balls Direction
+            yield return new WaitForSeconds(2f); //timing in between ball spawns
         }
+        Debug.Log("Ball spawning complete");
+        //resetting the Play button when completed
+        playPauseButton.GetComponentInChildren<TextMeshProUGUI>().text = "Play";
+        isPlaying = false;
     }
 
     void SpawnBall(string direction)
     {
         Vector3 spawnDirection = Vector3.zero;
+        if (direction == "right") spawnDirection = new Vector3(1f, 0f, 0f);
+        else if (direction == "left") spawnDirection = new Vector3(-1f, 0f, 0f);
+        else if (direction == "center") spawnDirection = new Vector3(0f, 0f, 0f);
 
-        if (direction == "right") spawnDirection = new Vector3(0.5f, 0f, 0f);
-        else if (direction == "left") spawnDirection = new Vector3(-0.5f, 0f, 0f);
+        Vector3 spawnPosition = new Vector3(0, 1, 0); // Spawn at (0, 1, 0)
+        GameObject ball = Instantiate(ballPrefab, spawnPosition, Quaternion.identity);
 
-        GameObject ball = Instantiate(ballPrefab, transform.position, Quaternion.identity);
         Rigidbody rb = ball.GetComponent<Rigidbody>();
-        rb.AddForce(spawnDirection, ForceMode.Impulse);
+        rb.AddForce(spawnDirection *5f, ForceMode.Impulse);
+
+        //need to see where this damn ball is
+        Debug.Log("Ball spawned at position: " + spawnPosition);
     }
 
     void LoadJSON()
@@ -122,6 +139,8 @@ public class JSONLoader : MonoBehaviour
     {
         Debug.Log("Selected Workout: " + workout.workoutName);
         // Update UI to show description and balls 
+        Debug.Log("Ball Count: " + workout.workoutDetails.numberOfWorkoutBalls);
+
 
         selectedWorkoutDetails = workout.workoutDetails; // Store selected workout details
         workoutDescriptionText.text = workout.description;
